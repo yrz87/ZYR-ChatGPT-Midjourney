@@ -4,13 +4,12 @@ import { generationsImage } from './daller2'
 import { getConnection } from './utils/dbconfig'
 import axios from 'axios'
 import type { ChatMessage } from './chatgpt'
-import { generationsImage } from './daller2'
 import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
 import { isNotEmptyString } from './utils/is'
-import { getConnection } from './utils/dbconfig'
-import axios from 'axios'
+import {createProxyMiddleware} from 'http-proxy-middleware';
+import {bodyParser} from 'body-parser';
 
 const app = express()
 const router = express.Router()
@@ -176,14 +175,91 @@ router.post('/verificationCode', async (req, res) => {
   }
 });
 
-router.get('/fetch-image', async (req, res) => {
+
+router.post('/mj-submit-imagine', async (req, res) => {
   try {
-    const imageUrl = req.query.url;
-    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-    res.set('Content-Type', response.headers['content-type']);
+    const { API_MIDJOURNEY,prompt,base64 } = req.body; 
+    // console.log("/mj-submit-imagine",VITE_GLOB_API_MIDJOURNEY+"/mj/submit/imagine",prompt);
+    const response = await axios.post(API_MIDJOURNEY+"/mj/submit/imagine", { "prompt":prompt,"base64":base64 });
+    // console.log("response:mj-submit-imagine");
+    // res.set('Content-Type', response.headers['content-type']);
     res.send(response.data);
+    // let data = response.data;
+    // res.status(200).json({ success: true, message: 'successfully',data});
   } catch (error) {
-    res.status(500).send('Error fetching image');
+    res.send(error)
+  }
+});
+
+
+router.get('/mj-task-id-fetch', async (req, res) => {
+  const taskId = req.query.taskId;
+  const API_MIDJOURNEY = req.query.API_MIDJOURNEY;
+  // console.log(VITE_GLOB_API_MIDJOURNEY+"/mj/task/"+taskId+"/fetch",taskId);
+  try {
+    const response = await axios.get(API_MIDJOURNEY+"/mj/task/"+taskId+"/fetch");
+    // console.log("response:===");
+    // res.set('Content-Type', response.headers['content-type']);
+    // let data = response.data;
+    // res.status(200).json({ success: true, message: 'successfully',data});
+    res.send(response.data)
+  } catch (error) {
+    res.send(error)
+  }
+});
+
+router.post('/mj-submit-change', async (req, res) => {
+  try {
+    const { API_MIDJOURNEY,taskId, action, index} = req.body; 
+    // console.log("/mj-submit-change",VITE_GLOB_API_MIDJOURNEY+"/mj/submit/change");
+    const response = await axios.post(API_MIDJOURNEY+"/mj/submit/change", { "taskId":taskId,"action":action,"index":index });
+    // console.log(response);
+    // res.set('Content-Type', response.headers['content-type']);
+    res.send(response.data);
+  //   let data = response.data;
+  //   res.status(200).json({ success: true, message: 'successfully',data});
+  } catch (error) {
+    res.send(error)
+  }
+});
+router.post('/mj-submit-describe', async (req, res) => {
+  try {
+    const {API_MIDJOURNEY,base64} = req.body; 
+    // console.log("/mj-submit-describe",VITE_GLOB_API_MIDJOURNEY+"/mj/submit/describe");
+    const response = await axios.post(API_MIDJOURNEY+"/mj/submit/describe", { "base64":base64});
+    // console.log(response);
+    res.send(response.data);
+  //   let data = response.data;
+  //   res.status(200).json({ success: true, message: 'successfully',data});
+  } catch (error) {
+    res.send(error)
+  }
+});
+
+router.post('/mj-submit-blend', async (req, res) => {
+  try {
+    const {API_MIDJOURNEY,base64Array} = req.body; 
+    console.log("/mj-submit-blend",API_MIDJOURNEY+"/mj/submit/blend","base64Array:",base64Array);
+    const response = await axios.post(API_MIDJOURNEY+"/mj/submit/blend", { "base64Array":base64Array});
+    // console.log(response);
+    res.send(response.data);
+  //   let data = response.data;
+  //   res.status(200).json({ success: true, message: 'successfully',data});
+  } catch (error) {
+    res.send(error)
+  }
+});
+router.post('/mj-task-queue', async (req, res) => {
+  const API_MIDJOURNEY = req.query.API_MIDJOURNEY;
+  try {
+    // console.log("/mj-submit-queue",API_MIDJOURNEY+"/mj/task/queue");
+    const response = await axios.post(API_MIDJOURNEY+"/mj/task/queue");
+    // console.log(response);
+    res.send(response.data);
+  //   let data = response.data;
+  //   res.status(200).json({ success: true, message: 'successfully',data});
+  } catch (error) {
+    res.send(error)
   }
 });
 
@@ -274,8 +350,68 @@ router.post('/verify', async (req, res) => {
   }
 })
 
+app.use('/attachments', createProxyMiddleware({ 
+  target: 'https://cdn.discordapp.com', 
+  changeOrigin: true, 
+  pathRewrite: {
+    '^/attachments' : '/attachments'
+  }
+}));
+// app.use('/useGetMidjourneySelfProxyUrl', createProxyMiddleware({ 
+//   target: 'https://cdn.discordapp.com/',
+//   changeOrigin: true,
+//   secure: false, // 如果是https，需要设为true
+//   pathRewrite: {
+//     '^/attachments/': '/attachments', // remove base path
+//   },
+// }));
+// app.use('/images', createProxyMiddleware({ 
+//   target: 'https://cdn.discordapp.com', // 目标服务器的基础URL
+//   changeOrigin: true,
+//   secure: false,
+//   pathRewrite: {
+//     '^/images': '/attachments', // 注意这里有一个 "/"
+//   },
+// }));
+// app.get('/flash', function (req, res) {
+
+//   axios.get('https://cdn.discordapp.com/attachments/1119918876113764393/1121350142595965048/morganlisa_4019753687806840_a_yellow_pig_c748bd97-4528-44b5-9313-6a6eef1ca10e.png', {
+//     responseType: 'arraybuffer', //这里只能是arraybuffer，不能是json等其他项，blob也不行
+//   }).then(response => {
+//     res.set(response.headers) //把整个的响应头塞入更优雅一些
+//     res.end(response.data.toString('binary'), 'binary') //这句是关键，有两次的二进制转换
+//   })
+// })
+
+
+// app.get('/proxy', async (req, res) => {
+//   let url = req.query.url;  // 从请求中获取目标图片的 URL
+//   // const url = 'https://cdn.discordapp.com/attachments/1119918876113764393/1121350142595965048/morganlisa_4019753687806840_a_yellow_pig_c748bd97-4528-44b5-9313-6a6eef1ca10e.png';  // 提取目标图片的 URL
+//   // 确保url是字符串
+//   if (typeof url !== 'string') {
+//       return res.status(400).send('Invalid URL');  // 如果不是字符串，返回错误
+//   }
+
+//   try {
+//       const response = await axios({
+//           method: 'get',
+//           url: url,
+//           responseType: 'stream'
+//       });
+
+//       response.data.pipe(res);
+//   } catch (error) {
+//       console.error(`Error: ${error.message}`);
+//       res.status(500).send('An error occurred while proxying image');
+//   }
+// });
+
 app.use('', router)
 app.use('/api', router)
 app.set('trust proxy', 1)
+// app.use(bodyParser.json()); // for parsing application/json
+// app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+// app.use(bodyParser.json({ limit: '100mb' }));
+// app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 
 app.listen(3002, () => globalThis.console.log('Server is running on port 3002'))

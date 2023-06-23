@@ -22,7 +22,8 @@ export const useAppStore = defineStore('app-store', {
         this.recordState()
       }
     },
-
+    
+    
     recordState() {
       setLocalSetting(this.$state)
     },

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { SettingsState,Model  } from './helper'
+import type { SettingsState,Model,NavType  } from './helper'
 import { defaultSetting, getLocalState, removeLocalState, setLocalState } from './helper'
 
 export const useSettingStore = defineStore('setting-store', {
@@ -18,6 +18,12 @@ export const useSettingStore = defineStore('setting-store', {
     setModel(model: Model) {
       if (this.model !== model) {
         this.model = model
+        this.recordState()
+      }
+    },
+    setNavType(navType: NavType) {
+      if (this.navType !== navType) {
+        this.navType = navType
         this.recordState()
       }
     },

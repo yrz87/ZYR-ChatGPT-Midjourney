@@ -680,10 +680,7 @@ const newsList = [
       <!-- <span class="cursor-pointer transition duration-300 ease-in-out text-gray-400">注意事项</span> -->
       <span class="cursor-pointer transition duration-300 ease-in-out text-gray-400">Daller2 指南</span>
     </div>
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-      style="font-family: cursive"
-    >
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style="font-family: cursive">
       <div
         class="bg-gradient-to-br p-6 rounded-lg shadow-lg" v-for="(item, index) of newsList" :key="index" >
         <h3 class="text-xl font-semibold mb-4">{{ item.name }}</h3>

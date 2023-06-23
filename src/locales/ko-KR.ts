@@ -50,6 +50,12 @@ export default {
     preview: '미리보기',
     showRawText: '원본 텍스트로 보기',
   },
+  midjourney: {
+      placeholder: '例如：A beautiful girl (Midjourney对中文描述词有一定的限制,建议使用英文描述--可以使用右上角的翻译功能)',
+      placeholderMobile: '例如：A beautiful girl (Midjourney对中文描述词有一定的限制,建议使用英文描述--可以使用右上角的翻译功能)',
+      ignorePlaceholder: '请输入图像中你不想要的元素(例如：生成一幅街景,但不要有汽车,那么你可以填写car)',
+      ignorePlaceholderMobile: '请输入图像中你不想要的元素(例如：生成一幅街景,但不要有汽车,那么你可以填写car)',
+    },
   setting: {
     setting: '설정',
     general: '일반',
