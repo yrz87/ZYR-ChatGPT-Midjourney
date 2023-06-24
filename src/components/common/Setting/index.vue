@@ -9,9 +9,9 @@ import About from './About.vue'
 import { useAuthStore } from '@/store'
 import { SvgIcon } from '@/components/common'
 
-interface Props {
-  visible: boolean
-}
+// interface Props {
+//   visible: boolean
+// }
 
 // interface Emit {
 //   (e: 'update:visible', visible: boolean): void

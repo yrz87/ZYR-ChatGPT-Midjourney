@@ -28,30 +28,48 @@ import {
 import { useMidjourneyStore } from "@/store";
 import { useRoute } from "vue-router";
 import { useMidjourney } from "./hooks/useMidjourney";
+import { useBasicLayout } from "@/hooks/useBasicLayout";
+import { SvgIcon } from "@/components/common";
+import { t } from '@/locales'
 const {
   addMidjourney,
   // updateMidjourney,
   updateMidjourneySome,
   getMidjourneyByUuidAndIndex,
 } = useMidjourney();
-import { useBasicLayout } from "@/hooks/useBasicLayout";
-import { SvgIcon } from "@/components/common";
+
 let controller = new AbortController();
 // import type { ImgageType } from "@/store/modules/midjourney/helper";
 const dialog = useDialog();
 const message = useMessage();
 // 定义图片类型
-export type ImgageType = "IMAGINE" | "BLEND" | "DESCRIBE";
-import { t } from '@/locales'
-// 创建响应式引用
-// let imgageType = ref<ImgageType>('');
-const imgageType = ref(""); // 这里你应该对 imgageType 进行正确的初始化
-// const computedImgageType = computed(() => midjourneyStore.imgageType);
-const fileList = ref<FileObject[]>([]);
-const setImgageType = (type: ImgageType) => {
-  imgageType.value = type;
+// export type ImageType = "IMAGINE" | "BLEND" | "DESCRIBE";
+
+
+// let imageType = ref<ImgageType>('');
+// const imageType = ref(""); // 这里你应该对 imageType 进行正确的初始化
+// // const computedImgageType = computed(() => midjourneyStore.imageType);
+let fileLists = ref<FileObject[]>([]);
+
+
+type ImageType = 'IMAGINE' | 'DESCRIBE' | 'BLEND' | '';
+
+interface ImageTypeObject {
+  value: ImageType;
+}
+let imageType: ImageTypeObject = {
+  value: ''
 };
-const imgageTypeOptions: { label: string; key: ImgageType; image: string }[] = [
+
+// let imageType: ImageTypeObject;  // 假设你已经初始化了imgageType
+// let fileLists: { value: { base64: string }[] };  // 假设你已经初始化了fileList
+
+// 创建响应式引用
+
+const setImgageType = (type: ImageType) => {
+  imageType.value = type;
+};
+const imgageTypeOptions: { label: string; key: ImageType; image: string }[] = [
   {
     key: "IMAGINE",
     label: "垫图",
@@ -72,7 +90,7 @@ const midjourneyStore = useMidjourneyStore();
 
 // function handleImgageType(val: string) {
 //   midjourneyStore.updateMidjourney({
-//     imgageType: val,
+//     imageType: val,
 //   });
 // }
 
@@ -96,7 +114,8 @@ const loading = ref<boolean>(false);
 const prompt = ref<string>("");
 const ignorePrompt = ref<string>("");
 const buttonDisabled = computed(() => {
-  if (imgageType.value === "BLEND" || imgageType.value == "DESCRIBE")
+  console.log(imageType,"===imageType");
+  if (imageType.value === "BLEND" || imageType.value == "DESCRIBE")
     return false;
   return loading.value || !prompt.value || prompt.value.trim() === "";
 });
@@ -144,6 +163,7 @@ function addMidjourneyData(action: string, taskId: string, prompt: string) {
   addMidjourney(+uuid, {
     dateTime: new Date().toLocaleString(),
     failReason: "",
+    progress: "",
     action,
     model: midjourneyStore.drawModel,
     finished: false,
@@ -175,49 +195,73 @@ async function upscale(action: string, taskId: string, index: number) {
   }
 }
 
+// function GetImgageType() {
+//   if (imageType.value) {
+//     //有值
+//   }
+//   if (fileLists.value.length > 0) {
+//     const imageTypes = {
+//       IMAGINE: () => fileLists.value[0].base64,
+//       DESCRIBE: () => fileLists.value[0].base64,
+//       BLEND: () => {
+//         if (fileLists.value.length < 2) {
+//           message.error("混图模式下至少需要 2 张图片");
+//           return ""; // 返回空字符串，而不是undefined
+//         }
+//         return fileLists.value.slice(0, 2).map((file) => file.base64);
+//       },
+//     };
+
+//     return imageTypes[imageType.value] ? imageTypes[imageType.value]() : "";
+//   } else {
+//     message.error("没有上传的图片");
+//     return ""; // 返回空字符串，而不是undefined
+//   }
+// }
+
+
 function GetImgageType() {
-  if (imgageType.value) {
+  if (imageType.value) {
     //有值
   }
-  if (fileList.value.length > 0) {
-    const imageTypes = {
-      IMAGINE: () => fileList.value[0].base64,
-      DESCRIBE: () => fileList.value[0].base64,
+  if (fileLists.value.length > 0) {
+    const imageTypes: { [K in ImageType]: () => string | string[] } = {
+      IMAGINE: () => fileLists.value[0].base64,
+      DESCRIBE: () => fileLists.value[0].base64,
       BLEND: () => {
-        if (fileList.value.length < 2) {
+        if (fileLists.value.length < 2) {
           message.error("混图模式下至少需要 2 张图片");
           return ""; // 返回空字符串，而不是undefined
         }
-        return fileList.value.slice(0, 2).map((file) => file.base64);
+        return fileLists.value.slice(0, 2).map((file) => file.base64);
       },
+      "": () => "",  // 当imgageType.value为空字符串时，返回空字符串
     };
 
-    return imageTypes[imgageType.value] ? imageTypes[imgageType.value]() : "";
+    return imageTypes[imageType.value as ImageType] ? imageTypes[imageType.value as ImageType]() : "";
   } else {
     message.error("没有上传的图片");
     return ""; // 返回空字符串，而不是undefined
   }
 }
 
+
 async function handleSubmit() {
   retryCount = 0;
   if (loading.value) return;
 
-  let imageBase64 = imgageType.value ? GetImgageType() : "";
-  // if((imgageType.value=="IMAGINE"||imgageType.value=="") && imageBase64 == '') return;
-  // let message = prompt.value;
-  // if ((!message || message.trim() === "") && (imgageType.value =="IMAGINE" || imgageType.value =="")) return;
+  let imageBase64 = imageType.value ? GetImgageType() : "";
 
   let message = prompt.value;
 
-  const isImagineType = imgageType.value === "IMAGINE";
+  const isImagineType = imageType.value === "IMAGINE";
   const hasImage = imageBase64 !== "";
   const hasMessage = message && message.trim() !== "";
 
-  // 如果 imgageType 是 'IMAGINE' 或者空字符串，并且没有图像，返回
+  // 如果 imageType 是 'IMAGINE' 或者空字符串，并且没有图像，返回
   if (isImagineType && !hasImage) return;
 
-  // 如果没有消息并且 imgageType 是 'IMAGINE' 或者空字符串，返回
+  // 如果没有消息并且 imageType 是 'IMAGINE' 或者空字符串，返回
   if (!hasMessage && isImagineType) return;
 
   // Ignore certain elements
@@ -226,16 +270,26 @@ async function handleSubmit() {
   }
   controller = new AbortController();
   // Assemble the parameters
-  console.log("midjourneyStore.carryParam:", midjourneyStore.carryParam);
-  if (midjourneyStore.carryParam) {
+  // console.log("midjourneyStore.carryParam:", midjourneyStore.carryParam);
+  // if (midjourneyStore.carryParam) {
+  //   const optionalParams = ["aspect", "stylize", "chaos"].filter(
+  //     (param) => midjourneyStore[param]
+  //   );
+  //   message += optionalParams
+  //     .map((param) => ` --${param} ${midjourneyStore[param]}`)
+  //     .join("");
+  // }
+  console.log("midjourneyStore.carryParam:", (midjourneyStore as any).carryParam);
+  if ((midjourneyStore as any).carryParam) {
     const optionalParams = ["aspect", "stylize", "chaos"].filter(
-      (param) => midjourneyStore[param]
+      (param) => (midjourneyStore as any)[param]
     );
     message += optionalParams
-      .map((param) => ` --${param} ${midjourneyStore[param]}`)
+      .map((param) => ` --${param} ${(midjourneyStore as any)[param]}`)
       .join("");
   }
-  addMidjourneyData(imgageType.value, "", message);
+
+  addMidjourneyData(imageType.value, "", message);
   midjourneyStore.updateMidjourney({
     progressNum:progressNum.value+1
   })
@@ -244,16 +298,39 @@ async function handleSubmit() {
   loading.value = true;
   prompt.value = "";
   ignorePrompt.value = "";
-  fileList.value.length = 0;
+  fileLists.value.length = 0;
   try {
-    const submitMethods = {
+    // const submitMethods = {
+    //   IMAGINE: mjSubmitImagine,
+    //   BLEND: mjSubmitBlend,
+    //   DESCRIBE: mjSubmitDescribe,
+    //   "": mjSubmitImagine,
+    // };
+    // // 对于每种方法，定义一个与其对应的参数对象
+    // const submitParameters = {
+    //   IMAGINE: {
+    //     prompt: message,
+    //     base64: imageBase64,
+    //     signal: controller.signal,
+    //   },
+    //   BLEND: { base64Array: imageBase64 },
+    //   DESCRIBE: { base64: imageBase64 },
+    //   "": { prompt: message, base64: imageBase64, signal: controller.signal },
+    // };
+    // const method = submitMethods[imageType.value];
+    // const parameters = submitParameters[imageType.value];
+    // const res = await method(parameters);
+    // console.log(res);
+    // detailMidjourney(res, index);
+
+    const submitMethods: { [key: string]: any } = {
       IMAGINE: mjSubmitImagine,
       BLEND: mjSubmitBlend,
       DESCRIBE: mjSubmitDescribe,
       "": mjSubmitImagine,
     };
-    // 对于每种方法，定义一个与其对应的参数对象
-    const submitParameters = {
+
+    const submitParameters: { [key: string]: any } = {
       IMAGINE: {
         prompt: message,
         base64: imageBase64,
@@ -263,8 +340,9 @@ async function handleSubmit() {
       DESCRIBE: { base64: imageBase64 },
       "": { prompt: message, base64: imageBase64, signal: controller.signal },
     };
-    const method = submitMethods[imgageType.value];
-    const parameters = submitParameters[imgageType.value];
+
+    const method = submitMethods[imageType.value];
+    const parameters = submitParameters[imageType.value];
     const res = await method(parameters);
     console.log(res);
     detailMidjourney(res, index);
@@ -282,21 +360,24 @@ async function handleSubmit() {
   }
 }
 
-const statusMap = {
-  SUCCESS: "成功",
-  FAILURE: "错误",
-  FAILED: "错误",
-  NOT_START: "排队中",
-  IN_PROGRESS: "执行中",
-  SUBMITTED: "排队中",
-  TIMEOUT: "超时",
-  RES_ERROR: "任务出错",
-  UNKNOWN_ERROR: "未知错误",
-};
+// type Status = "SUCCESS" | "FAILURE" | "FAILED" | "NOT_START" | "IN_PROGRESS" | "SUBMITTED" | "TIMEOUT" | "RES_ERROR" | "UNKNOWN_ERROR";
 
-function returnStatus(val: string) {
-  return statusMap[val] ?? "";
-}
+// const statusMap: { [K in Status]: string } = {
+//   SUCCESS: "成功",
+//   FAILURE: "错误",
+//   FAILED: "错误",
+//   NOT_START: "排队中",
+//   IN_PROGRESS: "执行中",
+//   SUBMITTED: "排队中",
+//   TIMEOUT: "超时",
+//   RES_ERROR: "任务出错",
+//   UNKNOWN_ERROR: "未知错误",
+// };
+
+// function returnStatus(val: Status) {
+//   return statusMap[val] ?? "";
+// }
+
 
 async function detailMidjourney(resJson: any, index: number) {
   // const { data: resJson, success } = res;
@@ -319,7 +400,7 @@ const maxRetries = 3; //最大重试次数
 let retryInterval = 10000; // 5秒重试间隔
 
 async function fetchStatusByTaskId(taskId: string, index: number) {
-  const midjourneyMessage = getMidjourneyByUuidAndIndex(+uuid, index);
+  const midjourneyMessage = getMidjourneyByUuidAndIndex(+uuid, index) as any;
   const model = midjourneyMessage.model;
   let timerId: NodeJS.Timeout;
   timerId = setTimeout(async () => {
@@ -439,25 +520,25 @@ interface FileObject {
   base64: string;
   // 在这里添加其它的属性...
 }
-const handlePreview = ({
-  fileList: newFileList,
-}: {
-  fileList: FileObject[];
-}) => {
-  fileList.value = newFileList;
-  for (const file of fileList.value) {
-    const reader = new FileReader();
-    reader.readAsDataURL(file.file);
-    reader.onload = () => {
-      file.base64 = reader.result as string;
-    };
-  }
-  if (fileList.value.length == 0) {
-    imgageType.value = "";
-  } else if (!imgageType.value && fileList.value.length == 1) {
-    imgageType.value = "IMAGINE";
-  }
-};
+// const handlePreview = ({
+//   fileLists: newFileList,
+// }: {
+//   fileLists: FileObject[];
+// }) => {
+//   fileLists.value = newFileList;
+//   for (const file of fileLists.value) {
+//     const reader = new FileReader();
+//     reader.readAsDataURL(file.file);
+//     reader.onload = () => {
+//       file.base64 = reader.result as string;
+//     };
+//   }
+//   if (fileLists.value.length == 0) {
+//     imageType.value = "";
+//   } else if (!imageType.value && fileLists.value.length == 1) {
+//     imageType.value = "IMAGINE";
+//   }
+// };
 
 function handleStop() {
   if (loading.value) {
@@ -489,6 +570,8 @@ let attribute = [
         <div class="flex items-center space-x-4">
           你想生成什么风格或类型图像？
         </div>
+        <!-- :fileList="fileLists" -->
+        <!-- @change="handlePreview" -->
         <NUpload
           directory-dnd
           :max="2"
@@ -496,8 +579,8 @@ let attribute = [
           type="primary"
           list-type="image-card"
           accept=".png,.jpg,.webp,.jpeg"
-          :fileList="fileList"
-          @change="handlePreview"
+          
+          
           :default-upload="false"
         >
           <NUploadDragger>
@@ -516,12 +599,12 @@ let attribute = [
         </NUpload>
         <!-- <NButton @click="removeFirstImage">Remove First Image</NButton> -->
         <!-- </NImageGroup> -->
-        <div class="items-center space-x-4" v-if="fileList.length">
+        <div class="items-center space-x-4" v-if="fileLists.length">
           <div class="flex flex-wrap items-center gap-4">
             <template v-for="item of imgageTypeOptions" :key="item.key">
               <NButton
                 size="small"
-                :type="item.key === imgageType ? 'primary' : undefined"
+                :type="item.key === imageType.value ? 'primary' : undefined"
                 @click="setImgageType(item.key)"
               >
                 {{ item.label }}
@@ -542,10 +625,11 @@ let attribute = [
             ref="inputRef"
             v-model:value="prompt"
             type="textarea"
-            :disabled="imgageType == 'BLEND' || imgageType == 'DESCRIBE'"
+            :disabled="imageType.value == 'BLEND' || imageType.value == 'DESCRIBE'"
             :placeholder="placeholder"
             :autosize="{ minRows: 1, maxRows: isMobile ? 4 : 8 }"
           />
+
         </div>
         <div>
           <div class="flex items-center justify-between">
@@ -556,7 +640,7 @@ let attribute = [
             ref="inputRef"
             v-model:value="ignorePrompt"
             type="textarea"
-            :disabled="imgageType == 'BLEND' || imgageType == 'DESCRIBE'"
+            :disabled="imageType.value == 'BLEND' || imageType.value == 'DESCRIBE'"
             :placeholder="ignorePlaceholder"
             :autosize="{ minRows: 1, maxRows: isMobile ? 4 : 8 }"
           />
@@ -588,7 +672,7 @@ let attribute = [
             <NButton strong secondary type="primary" round @click="RefreshData">刷新</NButton>
           </div>
           <template v-if="dataSources.length == 0">
-            <NEmpty description="暂无任务" show-icon=""></NEmpty>
+            <NEmpty description="暂无任务"></NEmpty>
           </template>
           <NCard :bordered="false" class="flex text-xl items-center justify-between text-center">
             <div class="flex-shrink-0">当前{{progressNum}}个进行中的任务,请耐心等待。</div>
@@ -619,7 +703,7 @@ let attribute = [
           <text>总共：{{ dataSourcesLength }}</text>
 
           <template v-if="dataSources.length == 0">
-            <NEmpty description="暂无任务" show-icon=""></NEmpty>
+            <NEmpty description="暂无任务"></NEmpty>
           </template>
           <!--  -->
           <div
@@ -632,9 +716,13 @@ let attribute = [
               :key="index"
             >
               <div class="flex items-center justify-between">
-                <NButton round size="small" type="primary" tag="text" ghost>{{
+                <!-- <NButton round size="small" type="primary" tag="text" ghost>{{
                   returnStatus(item.status)
-                }}</NButton>
+                }}</NButton> -->
+                <!-- <NButton round size="small" type="primary" tag="button" ghost>{{
+                  returnStatus(item.status)
+                }}</NButton> -->
+
                 <NPopover
                   style="max-width: 400px"
                   placement="top"

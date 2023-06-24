@@ -8,6 +8,7 @@ declare namespace Midjourney {
         model:string
 		dateTime: string
 		failReason: string
+		progress: string
 		// error?: boolean
 		finished?: boolean
 		// conversationOptions?: ConversationRequest | null
