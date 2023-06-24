@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import {
   NButton,
   NImage,
-  NInput,
-  NPopconfirm,
+  // NInput,
+  // NPopconfirm,
   NSelect,
-  useMessage,
+  // useMessage,
   NSwitch,
   NInputNumber,
   NTooltip,
@@ -19,17 +19,17 @@ import type {
   DrawQuality,
 } from "@/store/modules/midjourney/helper";
 import { SvgIcon } from "@/components/common";
-import { useMidjourneyStore, useUserStore } from "@/store";
-import { useBasicLayout } from "@/hooks/useBasicLayout";
-import { t } from "@/locales";
+import { useMidjourneyStore } from "@/store";
+// import { useBasicLayout } from "@/hooks/useBasicLayout";
+// import { t } from "@/locales";
 import NIJIImg from "@/assets/B740D8636B8CA3D87DF6C6D19F830E62-01.png";
 import MidImg from "@/assets/6A4DF93742A82A8CA72CFBF4BECCD6F8-01.png";
 const midjourneyStore = useMidjourneyStore();
-const userStore = useUserStore();
+// const userStore = useUserStore();
 
-const { isMobile } = useBasicLayout();
+// const { isMobile } = useBasicLayout();
 
-const ms = useMessage();
+// const ms = useMessage();
 
 const aspect = computed(() => midjourneyStore.aspect);
 const drawModel = computed(() => midjourneyStore.drawModel);
@@ -193,9 +193,9 @@ function handleReset() {
       <div class="flex mt-2 py-1 pb-2 space-x-1 justify-between scrollbar-none">
         <template v-for="item of aspectOptions" :key="item.key">
           <div class="flex-1 p-[2px] rounded-md"  @click="midjourneyStore.setAspect(item.key)">
-            <div class="box-borde rounded-md dark:bg-black flex flex-col items-center py-2" :class="item.key === aspect ? 'active' : 'border-gray-300 border-2'" >
+            <div class="box-borde rounded-md dark:bg-black flex flex-col items-center py-2 border-2" :class="item.key === aspect ? 'active' : 'border-gray-300'" >
               <div class="flex items-center justify-center w-6 h-6">
-                <div class="rounded" :class="item.key === aspect ? 'active' : 'border-gray-300 border-2'" :style="item.style"></div>
+                <div class="rounded border-2" :class="item.key === aspect ? 'active' : 'border-gray-300'" :style="item.style"></div>
               </div>
               <div class="mt-2 text-center text-xs leading-none text-current ">{{ item.key }}</div>
             </div>
@@ -217,10 +217,10 @@ function handleReset() {
         <ul class="version space-x-2">
           
           <template v-for="item of drawModelOptions" :key="item.key">
-            <li class="version-item" :class="{ active: item.key == drawModel }" @click="midjourneyStore.setDrawModel(item.key)">
-              <div class="relative overflow-hidden rounded-md border-4 dark:border-neutral-700">
-                <span
-                  class="absolute flex h-full w-full items-center justify-center bg-black/20"
+            <!-- :class="{ active: item.key == drawModel }" -->
+            <li class="version-item"  @click="midjourneyStore.setDrawModel(item.key)">
+              <div class="relative overflow-hidden rounded-md border-4 " :class="item.key === drawModel ? 'active' : 'dark:border-neutral-700'">
+                <span class="absolute flex h-full w-full items-center justify-center bg-black/20"
                   ><span class="text-lg font-bold text-white">{{ item.label }}</span>
                 </span>
                 <NImage width="100" :src="item.image" />
@@ -265,7 +265,7 @@ function handleReset() {
       
 
 
-      <!-- <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-4">
         <span class="flex-shrink-0">画质</span>
         <div class="flex flex-wrap items-center gap-4">
           <NSelect
@@ -282,7 +282,7 @@ function handleReset() {
           <div class="large-text">画质：--quality 或 --q</div>
           <div class="large-text">参数释义：更高质量需要更长的时间处理更多细节</div>
         </NTooltip>
-      </div> -->
+      </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0">混乱</span>
         

@@ -4,17 +4,14 @@ import { NLayout, NLayoutContent } from 'naive-ui'
 // import { useRouter } from 'vue-router'
 import Sider from './sider/Left.vue'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useAppStore, useChatStore } from '@/store'
+// import { useAppStore } from '@/store'
 
 // const router = useRouter()
-const appStore = useAppStore()
-const chatStore = useChatStore()
-
-// router.replace({ name: 'Midjourney', params: { uuid: chatStore.active } })
+// const appStore = useAppStore()
 
 const { isMobile } = useBasicLayout()
 
-const collapsed = computed(() => appStore.siderCollapsed)
+// const collapsed = computed(() => appStore.siderCollapsed)
 
 
 const getMobileClass = computed(() => {

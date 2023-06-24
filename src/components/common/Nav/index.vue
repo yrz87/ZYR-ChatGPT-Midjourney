@@ -1,27 +1,21 @@
 <script setup lang='ts'>
 import type { CSSProperties } from "vue";
-import { computed, ref, watch } from "vue";
-import { NButton, NLayoutSider,NTooltip,NAvatar } from "naive-ui";
+import { computed, watch } from "vue";
+import { NLayoutSider,NTooltip,NAvatar } from "naive-ui";
 import { useRouter } from 'vue-router'
 import type { NavType } from '@/store/modules/settings/helper'
-import { useAppStore, useChatStore,useSettingStore } from "@/store";
+import { useAppStore,useSettingStore } from "@/store";
 import { useBasicLayout } from "@/hooks/useBasicLayout";
 import { SvgIcon } from "@/components/common";
 import defaultAvatar from '@/assets/avatar.jpg'
 const router = useRouter()
 const appStore = useAppStore();
-const chatStore = useChatStore();
 const settingStore = useSettingStore();
 
 const { isMobile } = useBasicLayout();
-const show = ref(false);
 
-const navType = computed(() => settingStore.navType)
+// const navType = computed(() => settingStore.navType)
 
-function handleAdd() {
-  chatStore.addHistory({ title: "New Chat", uuid: Date.now(), isEdit: false });
-  if (isMobile.value) appStore.setSiderCollapsed(true);
-}
 
 const getMobileClass = computed<CSSProperties>(() => {
   if (isMobile.value) {
@@ -33,14 +27,14 @@ const getMobileClass = computed<CSSProperties>(() => {
   return {};
 });
 
-const mobileSafeArea = computed(() => {
-  if (isMobile.value) {
-    return {
-      paddingBottom: "env(safe-area-inset-bottom)",
-    };
-  }
-  return {};
-});
+// const mobileSafeArea = computed(() => {
+//   if (isMobile.value) {
+//     return {
+//       paddingBottom: "env(safe-area-inset-bottom)",
+//     };
+//   }
+//   return {};
+// });
 
 watch(
   isMobile,
@@ -94,19 +88,17 @@ const navTypeOptions: { label: string; key: NavType; name: string;icon: string; 
 </script>
 
 <template>
-  <!-- <NLayoutSider
+  <NLayoutSider
     :width="72"
-    :show-trigger="isMobile ? false : 'arrow-circle'"
-    position="absolute"
     bordered
     :style="getMobileClass"
   >
   
-    <div class="n-layout-sider-scroll-container" style="min-width: 72px; overflow: auto">-->
-      <div class="flex h-full flex-col items-center justify-between px-2 py-4 dark:bg-[#25272d]"> 
+    <div class="n-layout-sider-scroll-container" style="min-width: 72px; overflow: auto">
+      <div class="flex h-full flex-col items-center justify-between bg-[#e8eaf1] px-2 py-4 dark:bg-[#25272d]"> 
         <div class="flex flex-col space-y-4">
           <template v-for="item of navTypeOptions" :key="item.key">
-            <div class="h-12 w-12 cursor-pointer rounded-xl bg-[#E7ECF6] duration-300 dark:bg-[#34373c]"  @click="handleNav(item.key)">
+            <div class="h-12 w-12 cursor-pointer rounded-xl bg-white duration-300 dark:bg-[#34373c]"  @click="handleNav(item.key)">
                 <div class="flex h-full">
                   <div class="m-auto text-center">
                     <NTooltip placement="right" trigger="hover">
@@ -120,12 +112,12 @@ const navTypeOptions: { label: string; key: NavType; name: string;icon: string; 
                   </div>
                 </div>
             </div>
-          </template>
+          </template>    
         </div>
         <!-- 放入头像及设置按钮 -->
         <NAvatar size="large" round :src="defaultAvatar" />
       </div>
       
-   <!--  </div>
-  </NLayoutSider> -->
+   </div>
+   </NLayoutSider>
 </template>

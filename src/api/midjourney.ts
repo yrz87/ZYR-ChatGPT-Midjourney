@@ -68,11 +68,12 @@ export function mjSubmitChange<T = any>(
 export function mjTaskIdFetch<T = any>(
     params: {
         taskId: string
+        model: string
         signal?: GenericAbortSignal
     },
 ) {
     try {
-        if(midjourneyStore.drawModel == "NIJI"){
+        if(params.model == "NIJI"){
             API = import.meta.env.VITE_GLOB_API_MIDJOURNEY_NIJI
         }
         // console.log(params, "==mjTaskIdFetch==params");
@@ -131,6 +132,39 @@ export function mjSubmitBlend<T = any>(
         return error;
     }
 }
+export function mjTaskList<T = any>() {
+    try {
+        if(midjourneyStore.drawModel == "NIJI"){
+            API = import.meta.env.VITE_GLOB_API_MIDJOURNEY_NIJI
+        }
+        const response = get<T>({
+            url: '/mj-task-list?API_MIDJOURNEY='+API
+        })
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
+export function mjTaskListByCondition<T = any>(
+    params: {
+        ids: string
+    },
+) {
+    try {
+        console.log(params.ids);
+        if(midjourneyStore.drawModel == "NIJI"){
+            API = import.meta.env.VITE_GLOB_API_MIDJOURNEY_NIJI
+        }
+        const response = post<T>({
+            url: '/mj-task-list-by-condition',
+            data: { API_MIDJOURNEY:API,ids:params.ids},
+        })
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
+
 export function useGetMidjourneySelfProxyUrl<T = any>(
     params: {
         url: string

@@ -262,7 +262,33 @@ router.post('/mj-task-queue', async (req, res) => {
     res.send(error)
   }
 });
-
+router.get('/mj-task-list', async (req, res) => {
+  const API_MIDJOURNEY = req.query.API_MIDJOURNEY;
+  try {
+    // console.log("/mj-submit-list",API_MIDJOURNEY+"/mj/task/list");
+    const response = await axios.get(API_MIDJOURNEY+"/mj/task/list");
+    // console.log(response);
+    res.send(response.data);
+  //   let data = response.data;
+  //   res.status(200).json({ success: true, message: 'successfully',data});
+  } catch (error) {
+    res.send(error)
+  }
+});
+router.post('/mj-task-list-by-condition', async (req, res) => {
+  const {API_MIDJOURNEY,ids} = req.body; 
+  let arr = ids.split(",");
+  try {
+    console.log("/mj-submit-list-by-condition",API_MIDJOURNEY+"/mj/task/list",arr);
+    const response = await axios.post(API_MIDJOURNEY+"/mj/task/list-by-condition",{"ids":arr});
+    // console.log(response);
+    res.send(response);
+  //   let data = response.data;
+  //   res.status(200).json({ success: true, message: 'successfully',data});
+  } catch (error) {
+    res.send(error)
+  }
+});
 router.post('/generate-image', async (req, res) => {
   const { prompt,userIdentify,token } = req.body;
   // const obj = {userIdentify:userIdentify,token:token,version:"Daller2",question:prompt,type:0}
@@ -349,62 +375,23 @@ router.post('/verify', async (req, res) => {
     res.send({ status: 'Fail', message: error.message, data: null })
   }
 })
-
-app.use('/attachments', createProxyMiddleware({ 
-  target: 'https://cdn.discordapp.com', 
+app.use('/images/cnd-discordapp', createProxyMiddleware({ 
+  target: 'https://cdn.discordapp.com/attachments', // 这是实际的图片服务器地址
   changeOrigin: true, 
   pathRewrite: {
-    '^/attachments' : '/attachments'
+    '^/images/cnd-discordapp' : '/' // 这将会将你的服务器上的 /images 路径重写为目标服务器上的 / 路径
+  },
+  onProxyReq: function(proxyReq, req, res) {
+    console.log('Original Request URL: ', req.originalUrl);
+    console.log('Proxy Request URL: ', proxyReq.path);
+  },
+  onProxyRes: function(proxyRes, req, res) {
+    console.log('Proxy Response Status: ', proxyRes.statusCode);
+  },
+  onError: function(err, req, res) {
+    console.error('Error in proxy: ', err);
   }
 }));
-// app.use('/useGetMidjourneySelfProxyUrl', createProxyMiddleware({ 
-//   target: 'https://cdn.discordapp.com/',
-//   changeOrigin: true,
-//   secure: false, // 如果是https，需要设为true
-//   pathRewrite: {
-//     '^/attachments/': '/attachments', // remove base path
-//   },
-// }));
-// app.use('/images', createProxyMiddleware({ 
-//   target: 'https://cdn.discordapp.com', // 目标服务器的基础URL
-//   changeOrigin: true,
-//   secure: false,
-//   pathRewrite: {
-//     '^/images': '/attachments', // 注意这里有一个 "/"
-//   },
-// }));
-// app.get('/flash', function (req, res) {
-
-//   axios.get('https://cdn.discordapp.com/attachments/1119918876113764393/1121350142595965048/morganlisa_4019753687806840_a_yellow_pig_c748bd97-4528-44b5-9313-6a6eef1ca10e.png', {
-//     responseType: 'arraybuffer', //这里只能是arraybuffer，不能是json等其他项，blob也不行
-//   }).then(response => {
-//     res.set(response.headers) //把整个的响应头塞入更优雅一些
-//     res.end(response.data.toString('binary'), 'binary') //这句是关键，有两次的二进制转换
-//   })
-// })
-
-
-// app.get('/proxy', async (req, res) => {
-//   let url = req.query.url;  // 从请求中获取目标图片的 URL
-//   // const url = 'https://cdn.discordapp.com/attachments/1119918876113764393/1121350142595965048/morganlisa_4019753687806840_a_yellow_pig_c748bd97-4528-44b5-9313-6a6eef1ca10e.png';  // 提取目标图片的 URL
-//   // 确保url是字符串
-//   if (typeof url !== 'string') {
-//       return res.status(400).send('Invalid URL');  // 如果不是字符串，返回错误
-//   }
-
-//   try {
-//       const response = await axios({
-//           method: 'get',
-//           url: url,
-//           responseType: 'stream'
-//       });
-
-//       response.data.pipe(res);
-//   } catch (error) {
-//       console.error(`Error: ${error.message}`);
-//       res.status(500).send('An error occurred while proxying image');
-//   }
-// });
 
 app.use('', router)
 app.use('/api', router)

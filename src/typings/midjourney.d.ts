@@ -5,6 +5,7 @@ declare namespace Midjourney {
         status:string
         imgUrl:string
         action:string
+        model:string
 		dateTime: string
 		failReason: string
 		// error?: boolean
@@ -28,6 +29,7 @@ declare namespace Midjourney {
 		stylize: Stylize
 		drawQuality: DrawQuality
 		chaos: number
+		progressNum: number
 		aspect: Aspect
 		midjourney: { uuid: number; data: Midjourney[] }[]
 	}

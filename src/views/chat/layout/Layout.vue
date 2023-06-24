@@ -5,11 +5,10 @@ import { NLayout, NLayoutContent } from 'naive-ui'
 import Sider from './sider/index.vue'
 import Permission from './Permission.vue'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useAppStore, useAuthStore, useChatStore } from '@/store'
+import { useAppStore, useAuthStore } from '@/store'
 
 // const router = useRouter()
 const appStore = useAppStore()
-const chatStore = useChatStore()
 const authStore = useAuthStore()
 
 // router.replace({ name: 'Chat', params: { uuid: chatStore.active } })

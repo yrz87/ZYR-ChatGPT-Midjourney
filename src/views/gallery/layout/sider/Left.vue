@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import {
   NButton,
   NImage,
-  NInput,
-  NPopconfirm,
-  NSelect,
-  useMessage,
+  // NPopconfirm,
+  // NSelect,
+  // useMessage,
   NSwitch,
   NInputNumber,
   NTooltip,
@@ -19,17 +18,15 @@ import type {
   DrawQuality,
 } from "@/store/modules/midjourney/helper";
 import { SvgIcon } from "@/components/common";
-import { useMidjourneyStore, useUserStore } from "@/store";
-import { useBasicLayout } from "@/hooks/useBasicLayout";
-import { t } from "@/locales";
+import { useMidjourneyStore } from "@/store";
+// import { useBasicLayout } from "@/hooks/useBasicLayout";
 import NIJIImg from "@/assets/B740D8636B8CA3D87DF6C6D19F830E62-01.png";
 import MidImg from "@/assets/6A4DF93742A82A8CA72CFBF4BECCD6F8-01.png";
 const midjourneyStore = useMidjourneyStore();
-const userStore = useUserStore();
 
-const { isMobile } = useBasicLayout();
+// const { isMobile } = useBasicLayout();
 
-const ms = useMessage();
+// const ms = useMessage();
 
 const aspect = computed(() => midjourneyStore.aspect);
 const drawModel = computed(() => midjourneyStore.drawModel);
@@ -265,7 +262,7 @@ function handleReset() {
       
 
 
-      <!-- <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-4">
         <span class="flex-shrink-0">画质</span>
         <div class="flex flex-wrap items-center gap-4">
           <NSelect
@@ -282,7 +279,7 @@ function handleReset() {
           <div class="large-text">画质：--quality 或 --q</div>
           <div class="large-text">参数释义：更高质量需要更长的时间处理更多细节</div>
         </NTooltip>
-      </div> -->
+      </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0">混乱</span>
         
@@ -347,7 +344,7 @@ function handleReset() {
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0">默认参数</span>
         <NButton size="small" @click="handleReset">
-          {{ $t("common.reset") }}
+          重置
         </NButton>
       </div>
       <div class="flex items-center space-x-4">

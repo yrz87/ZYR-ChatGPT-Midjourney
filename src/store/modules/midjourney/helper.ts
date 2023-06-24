@@ -24,6 +24,7 @@ export function defaultState(): Midjourney.MidjourneyState {
     drawQuality:"low",
     carryParam:true,
     chaos:0,
+    progressNum:0,
     midjourney: [{ uuid, data: [] }],
   }
 }

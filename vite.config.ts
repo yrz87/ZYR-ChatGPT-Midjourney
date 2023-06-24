@@ -41,11 +41,11 @@ export default defineConfig((env) => {
           changeOrigin: true, // 允许跨域
           rewrite: path => path.replace('/api/', '/'),
         },
-        '/discord': {
-          target: 'https://cdn.discordapp.com', // 你想要代理的目标 URL
+        '/attachments': {
+          target: 'https://cdn.discordapp.com',
           changeOrigin: true,
           pathRewrite: {
-            '^/discord': '' // 将 URL 中的 /api 替换为空
+            '^/attachments': ''
           }
         }
       },

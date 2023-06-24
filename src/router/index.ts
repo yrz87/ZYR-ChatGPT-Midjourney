@@ -45,9 +45,6 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/drawer',
-        // name: 'Midjourney',
-        // component: MidjourneyLayout,
-        // redirect: '/midjourneys',
         children: [
           {
             // path: '/',
@@ -56,20 +53,7 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/drawer/index.vue'),
           }
         ],
-      }, {
-        path: '/mind-map',
-        // name: 'Midjourney',
-        // component: MidjourneyLayout,
-        // redirect: '/midjourneys',
-        children: [
-          {
-            // path: '/',
-            path: '/drawer/:uuid?',
-            name: 'MindMap',
-            component: () => import('@/views/mind-map/index.vue'),
-          }
-        ],
-      }, {
+      },  {
         path: '/gallery',
         // name: 'Midjourney',
         // component: MidjourneyLayout,

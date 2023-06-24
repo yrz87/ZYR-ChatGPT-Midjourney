@@ -214,7 +214,7 @@ export const useMidjourneyStore = defineStore('midjourney-store', {
         this.recordState()
       }
     },
-
+    
     async reloadRoute(uuid?: number) {
       this.recordState()
       await router.push({ name: 'midjourney', params: { uuid } })
